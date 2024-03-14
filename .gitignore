@@ -1,0 +1,6 @@
+.vscode/
+.DS_Store/
+bin/
+
+test/basic_test.go
+main.go

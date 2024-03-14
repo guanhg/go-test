@@ -1,0 +1,5 @@
+关于go的包和基本语法的使用总结
+
+test: buildin的基本用法总结，其中的testcase对应doc的测试用例
+pkg: 用go实现的一些常用功能组件
+doc: go的基本用法和`源码解读`文档
