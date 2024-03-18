@@ -14,12 +14,12 @@
 1. 程序启动时, 当前线程创建并获取一个g0协程, 为系统线程的主协程, g0用来做线程的线程执行其它普通协程时的启动和收尾工作, 普通协程的入口
    g0的汇编初始化
 ```asm
-		MOVQ    $runtime·g0(SB), DI  //g0的地址放入DI寄存器
-		LEAQ   (-64*1024+104)(SP), BX//BX = SP - 64*1024 + 104
-		MOVQ   BX, g_stackguard0(DI)//g0.stackguard0 = SP - 64*1024 + 104
-		MOVQ   BX, g_stackguard1(DI)//g0.stackguard1 = SP - 64*1024 + 104
-		MOVQ   BX, (g_stack+stack_lo)(DI)//g0.stack.lo = SP - 64*1024 + 104
-		MOVQ   SP, (g_stack+stack_hi)(DI)//g0.stack.hi = SP
+	MOVQ    $runtime·g0(SB), DI  //g0的地址放入DI寄存器
+	LEAQ   (-64*1024+104)(SP), BX//BX = SP - 64*1024 + 104
+	MOVQ   BX, g_stackguard0(DI)//g0.stackguard0 = SP - 64*1024 + 104
+	MOVQ   BX, g_stackguard1(DI)//g0.stackguard1 = SP - 64*1024 + 104
+	MOVQ   BX, (g_stack+stack_lo)(DI)//g0.stack.lo = SP - 64*1024 + 104
+	MOVQ   SP, (g_stack+stack_hi)(DI)//g0.stack.hi = SP
 ```
 
 2. m0的汇编初始化, 为整个程序的主线程，设置`m0.tls`, 并把g0绑定到m0的tls中，完成m0, g0的相互绑定
@@ -35,7 +35,7 @@
 	JEQ 2(PC)
 	CALL runtime·abort(SB)
 
-	ok:
+ok:
    // set the per-goroutine and per-mach "registers"
    get_tls(BX)//获取fs段基址到BX寄存器
    LEAQ   runtime·g0(SB), CX //CX = g0的地址
@@ -94,9 +94,9 @@ schedinit初始化了最大线程数, m0的部分字段, allp全局变量等等,
 
 5. 程序进入调度循环, 调用链`mstart -> schedule -> execute, execute不会退出`, 从m.p或全局g队列中获取g结构, 执行过程中会把g结构放入到m.tls中, 方便通过`getg()从m.tls获取`
 ```asm
-		// start this M 
-		CALL runtime·mstart(SB) //主线程进入调度循环，运行刚刚创建的goroutine  
-		CALL runtime·abort(SB)  // mstart should never return RET
+	// start this M 
+	CALL runtime·mstart(SB) //主线程进入调度循环，运行刚刚创建的goroutine  
+	CALL runtime·abort(SB)  // mstart should never return RET
 ```
 ```go
 		func schedule() {
@@ -152,6 +152,7 @@ schedinit初始化了最大线程数, m0的部分字段, allp全局变量等等,
 <img src=https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/3ecf20ac0f55448589215143b0b501d3~tplv-k3u1fbpfcp-zoom-in-crop-mark:1512:0:0:0.awebp heigh=300 width=600>
 
 关联图
+
 <img src=https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/008b18cab409400b8f775f6ba93f1c7e~tplv-k3u1fbpfcp-zoom-in-crop-mark:1512:0:0:0.awebp heigh=400 width=400>
 
 ## 运行
@@ -217,55 +218,54 @@ schedinit初始化了最大线程数, m0的部分字段, allp全局变量等等,
 
 #### G的创建存储与获取
 - 创建
-	调用runtime.newproc来创建一个普通协程时. 如果m.p本地队列没满, 则存入其中, 否则, `把m.p一半元素和newg放到全局队列sched.runq中`
+  调用runtime.newproc来创建一个普通协程时. 如果m.p本地队列没满, 则存入其中, 否则, `把m.p一半元素和newg放到全局队列sched.runq中`
 - 获取
-	调用runtime.schedule来判断把哪个g放到m上运行
-	1. 调度器每切换61次, 则从全局队列sched.runq中获取, 保证全局队列中的g能够得到运行
-	2. 否则, 从本地队列m.p中获取
-	3. 否则, 再次检查全局队列sched.runq；否则，检查网络轮询netpoll结果；否则，从其他线程的队列窃取，即`伪随机从全局p队列allp中选取一个p，从p中获取g`
+  调用runtime.schedule来判断把哪个g放到m上运行
+  1. 调度器每切换61次, 则从全局队列sched.runq中获取, 保证全局队列中的g能够得到运行
+  2. 否则, 从本地队列m.p中获取
+  3. 否则, 再次检查全局队列sched.runq；否则，检查网络轮询netpoll结果；否则，从其他线程的队列窃取，即`伪随机从全局p队列allp中选取一个p，从p中获取g`
 	
 #### M的创建存储与获取
 每个M都关联一个g0, 用于普通协程的传参和收尾
 - 创建
-	1. 调用链runtime.startm -> newm 来创建一个系统线程, 放到系统上去运行. 如果`m没有任务需要执行或m退出系统调用`时, 会把m结构放到调度器的m空闲列表中
+  1. 调用链runtime.startm -> newm 来创建一个系统线程, 放到系统上去运行. 如果`m没有任务需要执行或m退出系统调用`时, 会把m结构放到调度器的m空闲列表中
 - 获取
-	1. 调用链runtime.startm -> acquirem 从调度器的m空闲队列中获取
+  1. 调用链runtime.startm -> acquirem 从调度器的m空闲队列中获取
 
 #### P的创建与获取
 - 创建
-	1. 在调度器初始化时, 会创建一个全局队列allp, 是一个数组结构, 其长度默认为cpu的核数
+  1. 在调度器初始化时, 会创建一个全局队列allp, 是一个数组结构, 其长度默认为cpu的核数
 - 获取
-	1. 从全局队列allp中获取
+  1. 从全局队列allp中获取
 ## 调度时机
 从调度机制上来讲，操作系统的调度可以分为协作式和抢占式。
 - 协作式调度一般分为两种情形：
 通过主动调用runtime.GoSched()函数来让出cpu资源
-	1. 被动调度：goroutine执行某个操作因条件不满足需要等待而发生的调度（如等待锁、等待时间、等待IO资源就绪等）；
-	2. 主动调度：goroutine主动调用Gosched()函数让出CPU而发生的调度；
+  1. 被动调度：goroutine执行某个操作因条件不满足需要等待而发生的调度（如等待锁、等待时间、等待IO资源就绪等）；
+  2. 主动调度：goroutine主动调用Gosched()函数让出CPU而发生的调度；
 	
 协作式调度的调用链都会进入goschedImpl函数:`设置状态`, `解绑g和m`(把g放到全局队列allgs中), 进入新的调度等
 ```go
-func goschedImpl(gp *g) {
-	status := readgstatus(gp)
-	if status&^ _Gscan != _Grunning {//当前的g为 _Grunning状态才能释放
-		dumpgstatus(gp)
-		throw("bad g status")
-	}
-	casgstatus(gp, _Grunning, _Grunnable)//修改g的运行状态
-	dropg() //设置当前m.curg = nil, gp.m = nil
-	lock(&sched.lock)
-	globrunqput(gp)//把gp放入sched的全局运行队列runq
-	unlock(&sched.lock)
+	func goschedImpl(gp *g) {
+		status := readgstatus(gp)
+		if status&^ _Gscan != _Grunning {//当前的g为 _Grunning状态才能释放
+			dumpgstatus(gp)
+			throw("bad g status")
+		}
+		casgstatus(gp, _Grunning, _Grunnable)//修改g的运行状态
+		dropg() //设置当前m.curg = nil, gp.m = nil
+		lock(&sched.lock)
+		globrunqput(gp)//把gp放入sched的全局运行队列runq
+		unlock(&sched.lock)
 
-	schedule()//进入新一轮调度
-}
+		schedule()//进入新一轮调度
+	}
 ```
 
 - 抢占式调度
-抢占式分为`时间抢占`(本质上也是信号抢占)和`系统信号`抢占，通过`系统监控线程`来触发抢占行为，系统监控线程在runtime.main中被初始化
-抢占调用链 runtime.sysmon -> retake
-1. 遍历全局队列allp，如果p的运行时间超过10ms触发抢占
-2. 遍历全局队列allp，如果p的状态是系统调用，寻找新的m来接管p，然后再通过运行时间触发抢占
+抢占式分为`时间抢占`(本质上也是信号抢占)和`系统信号`抢占，通过`系统监控线程`来触发抢占行为，系统监控线程在runtime.main中被初始化，抢占调用链 runtime.sysmon -> retake
+  1. 遍历全局队列allp，如果p的运行时间超过10ms触发抢占
+  2. 遍历全局队列allp，如果p的状态是系统调用，寻找新的m来接管p，然后再通过运行时间触发抢占
 ```go
 func retake(now int64) uint32 {
     n := 0
