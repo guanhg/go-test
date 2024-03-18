@@ -1,20 +1,23 @@
+[toc]
+
 # Memory
 Go语言内置运行时（就是Runtime），抛弃了传统的内存分配方式，改为自主管理。这样可以自主地实现更好的内存使用模式，比如内存池、预分配等等。这样，不会每次内存分配都需要进行系统调用。
 
 >   Golang运行时的内存分配算法主要源自 Google 为 C 语言开发的TCMalloc算法，全称Thread-Caching Malloc。核心思想就是把内存分为多级管理，从而降低锁的粒度。它将可用的堆内存采用二级分配的方式进行管理。
-   每个线程都会自行维护一个独立的内存池，进行内存分配时优先从该内存池中分配，当内存池不足时才会向全局内存池申请，以避免不同线程对全局内存池的频繁竞争
+> 每个线程都会自行维护一个独立的内存池，进行内存分配时优先从该内存池中分配，当内存池不足时才会向全局内存池申请，以避免不同线程对全局内存池的频繁竞争
 
 ## 分配malloc
 ### 内存模型
 <img src=https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2019/11/26/16ea7188a1df53e1~tplv-t2oaga2asx-jj-mark:3024:0:0:0:q75.png>
 
 > Go在程序启动的时候，内存管理器会先向操作系统申请一块内存，切成小块后自己进行管理。
+
 申请到的内存块被分配了三个区域，在X64上分别是512MB，16GB，512GB大小。
 **注意：** 这时还只是一段虚拟的地址空间，并不会真正地分配内存
 
 - arena区域
     <img src=https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2019/11/26/16ea71849399e784~tplv-t2oaga2asx-jj-mark:3024:0:0:0:q75.png>
-真正的堆区，Go动态分配的内存都是在这个区域，它把内存分割成8KB大小的页，一些页组合起来称为mspan。
+`真正的堆区`，Go动态分配的内存都是在这个区域，它把内存分割成8KB大小的页，一些页组合起来称为mspan。
 
 > **mspan**：由多个连续的页（page [大小：8KB]）组成的大块内存，面向内部管理
   **object**：将mspan按照特定大小切分成多个小块，每一个小块都可以存储对象，面向对象分配
@@ -26,8 +29,8 @@ Go语言内置运行时（就是Runtime），抛弃了传统的内存分配方�
 		startAddr      uintptr   	// 起始序号
 		npages         uintptr   	// 管理的页数
 		manualFreeList gclinkptr 	// 待分配的 object 链表
-		 nelems 		uintptr 	 // 块个数，表示有多少个块可供分配
-		 allocCount    uint16		// 已分配块的个数
+		nelems 		uintptr 		// 块个数，表示有多少个块可供分配
+		allocCount     uint16		// 已分配块的个数
 		...
 	}
 type heapArena struct {
@@ -141,6 +144,8 @@ Go语言的内存分配非常复杂，它的一个原则就是能复用的一定
 # 回收gc
 垃圾回收一般分为标记阶段和清除阶段
 
+## 三色标记
 [三色标记法](https://community.apinto.com/d/34057-golang-gc)
 
+## 垃圾清理
 [gcStart源码解读](https://juejin.cn/post/7271620031510806586?searchId=2024031021071632C1320B60537253D9A1)

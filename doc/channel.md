@@ -1,7 +1,10 @@
+[toc]
+
 # channel
 channel是实现CSP(通信顺序进程)的一种通信单元, 用于协程间的同步/通信, 是一个双向通信的管道
 
 <img src=https://p1-jj.byteimg.com/tos-cn-i-t2oaga2asx/gold-user-assets/2019/12/8/16ee5c45b1dcb0ea~tplv-t2oaga2asx-jj-mark:3024:0:0:0:q75.awebp heigh=300 width=400 />
+
 ## 发送send
 示例1
 ```go
@@ -14,8 +17,10 @@ channel是实现CSP(通信顺序进程)的一种通信单元, 用于协程间的
 		ch2 <- 2 	// 阻塞
 	}
 ```
+
 - 对于已经<font color=yellow>关闭的通道</font>不能再发送消息, 否则panic报错
 - 对于nil channel发送消息, 会被一直阻塞
+
 ## 接收recv
 示例2
 ```go
@@ -108,7 +113,7 @@ channel是实现CSP(通信顺序进程)的一种通信单元, 用于协程间的
   应用场景: 1.两个协程之间同步状态/数据 等
 - 带缓冲channel, send数据时, 如果有缓存空间, 则不会阻塞当前协程; 否则会阻塞
   应用场景: 1.生产-消费模式场景; 2.限制协程数量 等
-```golang
+```go
 	// 限制3个协程运行
 	chs := make(chan struct{}, 3)
 	for j := 0; j < 30; j++ {         
@@ -122,7 +127,7 @@ channel是实现CSP(通信顺序进程)的一种通信单元, 用于协程间的
 	}
 ```
 ## nil channel
-```golang
+```go
 	var ch chan struct{}	// nil channel
 	ch <- struct{}{}		// 阻塞
 	<- ch					 // 阻塞

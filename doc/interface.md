@@ -1,3 +1,5 @@
+[toc]
+
 # interface
 - 1. interface本质是声明了零或多个行为方法的 <font color=yellow>数据类型</font>，struct也是一种<font color=yellow>数据类型</font>, 不仅包含行为方法的实现，还可以包含<font color=yellow>数据属性</font>
 - 2. 实现: <font color=red>由type关键字声明的类型(struct/go基本类型等)都是一种数据类型</font>, 如果这个类型实现了interface中声明的所有方法, 那么可以称这个type类型是interface的实现者. 对于零个方法的interface类型, 被称为empty interface, 任何type声明的类型都是实现者
@@ -191,7 +193,7 @@ go的运行时会自动判断interface变量的值类型.
 		f(ary)
 	}
 ```
-# 总结
+## 总结
 1. interface实现者作实参时, 尽量传递指针形式
 2. 对基本类型的interface实现者, 在需要修改属性值时, 返回新实例
 3. 对empty interface, 使用类型断言获取值, 使用Switch-type获取类型

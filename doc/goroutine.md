@@ -1,4 +1,9 @@
+[toc]
+
+---
 [Go程序入口](https://github.com/golang/go/blob/master/src/runtime/asm_amd64.s#L170) | [G](https://github.com/golang/go/blob/master/src/runtime/runtime2.go#L422)[M](https://github.com/golang/go/blob/master/src/runtime/runtime2.go#L550)[P](https://github.com/golang/go/blob/master/src/runtime/runtime2.go#L646)
+
+---
 
 # Goroutine
 是一种`用户态`的轻量级的线程，由Go语言的运行时管理。它允许程序在不同的执行路径上并发地运行代码，而不需要显式地创建线程。通过关键字"go"来启动一个协程，这样的协程可以方便地进行并发编程，提高程序的性能和效率，
@@ -261,7 +266,7 @@ func goschedImpl(gp *g) {
 抢占调用链 runtime.sysmon -> retake
 1. 遍历全局队列allp，如果p的运行时间超过10ms触发抢占
 2. 遍历全局队列allp，如果p的状态是系统调用，寻找新的m来接管p，然后再通过运行时间触发抢占
-```
+```go
 func retake(now int64) uint32 {
     n := 0
     // Prevent allp slice changes. This lock will be completely
@@ -360,6 +365,6 @@ P状态切换图
 	2. GC完成后，通过startTheWorld把allp队列中元素设置运行状态
 
 
-## Ref
+## 参考
 - [goroutine的创建及调度](https://juejin.cn/post/6986566386176753694)
 - [深入runtime](https://zboya.github.io/post/go_scheduler/#pprocessor)

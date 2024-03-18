@@ -1,3 +1,5 @@
+[toc]
+
 # map
 存储K-V数据形式的结构
 ## 声明
@@ -53,13 +55,13 @@ type bmap struct {
 }
 ```
 - hmap.extra溢出桶：
-> 如果具有相同hash(高位)值的Key数量过多`即超过8个`，也会存放在溢出同种，溢出桶的内存空间紧跟在正常桶的后面
+> 如果具有相同hash(高位)值的Key数量过多`即超过8个`，也会存放在溢出桶中，溢出桶的内存空间紧跟在正常桶的后面
 - hash(key)值
 > hash值的低位是用来确定key在哪个桶，经过位运算`hash(key)&hmap.B`来确定
-> hash值的高8位是用来查找桶中的key，topbits保存hash(key)的高8为的值，是为了快速查找
+> hash值的高8位是用来查找桶中的key，topbits保存hash(key)的高8位的值，是为了快速查找
 
 ### 初始化
-![image.png](https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/aab6faae364c4b309c5560bb44f734f4~tplv-k3u1fbpfcp-jj-mark:3024:0:0:0:q75.awebp#?w=1656&h=794&s=415982&e=png&b=fffefe)
+<img src=https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/aab6faae364c4b309c5560bb44f734f4~tplv-k3u1fbpfcp-jj-mark:3024:0:0:0:q75.png>
 
 - 初始化流程
 > 1. new(hmap)，并确定一个hash0
@@ -142,4 +144,5 @@ func makemap(t *maptype, hint int, h *hmap) *hmap {
 
 - 遍历过程，for range每次循环都会通过hiter结构去获取cell，并且随机从一个桶的一个cell开始遍历，若遍历的桶处于翻倍扩容时，只会遍历翻倍后到本桶的cell
 
-> [参考] (https://juejin.cn/post/7314509615159935027?searchId=20240312022725ACE5A854EA390D0331F2)
+## 参考 
+   [Map底层原理剖析](https://juejin.cn/post/7314509615159935027?searchId=20240312022725ACE5A854EA390D0331F2)

@@ -1,3 +1,5 @@
+[toc]
+
 # unsafe
 ### uintptr
 是buildin的一个定义类型: type uintptr uintptr, 本质是<font color=red>一个整型而不是指针</font>, 所以可以对uintptr作加减形式的地址运算. 
@@ -89,7 +91,7 @@ go提供的原子化操作包括几个功能, 这些操作都是原子化的
     v.Swap(new any)
     v.CompareAndSwap(old, new any)
 ```
-### 应用
+## 应用
 1. v++/v--
 在该场景下, 本地并发运行多协程, 会产生资源冲突
 示例3
