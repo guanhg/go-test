@@ -2,6 +2,5 @@
 .DS_Store
 bin/
 
-c_test/
-test/basic_test.go
-main.go
+test_c/
+test/abc_test.go
